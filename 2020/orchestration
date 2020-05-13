@@ -1,0 +1,85 @@
+## Autolock 
+    Docker swarm encrypts sensitive data for security reasons 
+        Raft logs on swarm managers 
+        TLS communication between swarm nodes 
+    
+    By default, Docker manages the keys used for this encryption automatically, but they are stored unencrypted on the managers disks 
+    Autolock is a feature that automatically locks the swarn, allowing you to manage the encryption keys yourself. 
+    This gives you control of the keys and can allow for greater security. 
+        docker swarm init --autolock 
+        docker swarm update --autolock=true
+        docker swarm unlock-key --rotate 
+
+
+# Docker Services 
+    A service is used to run an applicaiton on a Docker Swarm. 
+    A service specifies a set of one or more replica tasks. 
+    These tasks will be distributed automatically across the nodes in the cluster and executed as containers. 
+
+    docker service create [OPTIONS] IMAGE ARGS 
+
+    --replicas: Specify the number of replica tasks to create for the service 
+    --name: specify the name for the service 
+    -p PUBLISHED_PORT:SERVICE_PORT 
+
+
+    Templates can be used to give somewhat dynamic values to some flags with docker service create 
+
+    Managing Services 
+        List current Services
+            docker service ls 
+        
+        List a service's tasks 
+            docker service ps SERVICE 
+
+## Docker Inspect 
+
+    Allows you to get information about Docker objects, such as containers, images, services etc. 
+        Docker inspect OBJECT_ID 
+    
+    If you know what kind of object you are inspecting, you can also use an alternate form of the command:
+        docker container inspect CONTAINER 
+        docker service inspect SERVICE 
+
+
+# Docker Compose 
+
+    Tool that allows you to run multi-container applications defined using a declarative format
+
+    Install Docker Compose  
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose version
+
+    Uses a YAML file to declaratively define a set of containers and other resources that will be created as part of a larger application 
+    
+    To bring down / up 
+        docker-compose up 
+        docker-compose down 
+
+
+## Docker Stacks 
+
+    Services are capable of running a single, replicated application across nodes in the cluster. 
+    A Stack is a collection of interrelated services that can be deployed and scaled as a unit 
+    Docker stacks are similar to the multi-container applications created using docker compose 
+
+    
+        docker stack deploy -c COMPOSE_FILE STACK --> Deploy a new stack 
+        docker stack ls -->  List current stacks 
+        docker stack ps STACK -->  List the tasks associated with a stack 
+        docker stack services STACK --> List the services associated with a stack 
+        docker stack rm STACK --> Delete a stack  
+
+
+## Node Labels 
+
+    You can add pieces of metadata to your swarm nodes using node labels 
+    You an then use these labels to determine which nodes tasks will run on 
+
+    Add a label to a node 
+        docker node update --label-add LABEL=VALUE NODE 
+
+    
+
+    

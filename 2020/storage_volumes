@@ -1,0 +1,90 @@
+
+## Docker Storage 
+
+    Storage drivers are sometimes known as graph drivers. 
+    The proper storage driver to use often depends on your operating system and other local config factors 
+    overlay2 --> Current Ubuntu and CentOS / RHEL versions 
+    aufs --> Ubuntu 14.04 and older 
+    devicemapper: CentOS7 and earlier 
+
+# Storage Models 
+
+    Filesystem storage 
+        -> Data is stored in the form of a file system 
+        -> Used by overlay2 and aufs 
+        -> Efficient use of memory
+        -> Inefficient with write-heavy workloads 
+
+    Block Storage 
+        -> Stores data in blocks 
+        -> Used by devicemapper 
+        -> Efficient with write-heavy workloads 
+    
+    Object Storage 
+        -> Stores data in an external object-based store 
+        -> Application must be designed to use object-based storage
+        -> Flexible and scable 
+
+
+## DeviceMapper 
+
+    Device Mapper is one of the Docker storage drivers available for some Linux distributions. 
+    It is the default storage driver for CentOS 7 and earlier. 
+    Customise Device Mapper configuration using the daemon config file 
+
+    DeviceMapper supports 2 modes:
+
+        -> loop-lvm mode
+                Loopback mechanism simulates an additional physical disk using files on the local disk 
+                Minimal setup, does not require an additional storage device 
+                Bad performance, only use for testing 
+        -> direct-lvm 
+                Stores data on a seperate device 
+                Requires an additional storage device 
+                Good performance, use for production 
+
+
+# Docker Volumes 
+
+    When mounting external storage to a container, you can use either a bind mount or a volume 
+
+        --> Bind Mounts 
+                Mount a specific path on the host machine to the container. 
+                Not portable, dependent on the host machine's file system and directory structure 
+
+        --> Volumes 
+                Stores data on the host file system, but the storage location is managed by Docker 
+                More portable 
+                Can mount the same volume to multiple containers 
+                Works in more scenarios 
+
+    Example 
+        -> docker run --mount type=bind, source=/home/cloud_user/messsage,destination=/root, readonly 
+        -> docker run --mount type=volume, source=my-volume, destination=/root busybox sh -c 'echo hello > /root/message.txt && cat /root/message.txt
+
+
+    Docker Volume 
+        - docker volume create VOLUME_NAME 
+        - docker volume ls 
+        - docker volume inspect VOLUME_NAME 
+        - docker volume rm VOLUME_NAME 
+
+
+
+## Docker Image Cleanup 
+
+    => docker system df -> get information about disk usage on a system 
+    => docker system df -v -> Get even more detailed disk usage information 
+    => docker image prune -> Remove dangling images (images not referenced by any tag or container) 
+    => docker image prune -a -> Remove all unused images 
+
+
+## Storage in a cluster 
+    - Use application logic to store data in external object storage 
+    - Use a volume driver to create a volume that is external to any specific machine in your cluster  
+
+    docker image vieux/sshfs -> volume driver 
+        Allow you to create shared volumes that work across multiple swarm nodes 
+
+
+        

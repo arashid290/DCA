@@ -1,0 +1,65 @@
+- Includes a feature called swarm mode 
+    - Allows you to build a distributed cluster of docker machines to run your containers 
+
+- Docker swarm provides many useful features and can facilitate orchestration, HA and scaling 
+
+- Manager and Worker nodes 
+
+
+## Configuring a Swarm Manager ##
+
+Installing docker swarm 
+    docker swarm init 
+
+Info about docker swarm 
+    docker info 
+
+List the current nodes in the docker swarm 
+    docker node ls 
+
+## Docker Swarm Nodes 
+
+- Install Docker CE on both worker nodes. 
+
+Join command from the manager 
+    docker swarm join-token worker 
+
+Run the join command on both workers 
+Verify both workers have successfully joined the swarm
+    docker node ls 
+
+## Swarm Backup and Restore 
+
+Backing up Docker swarm data is simple. 
+
+    Stop docker service --> systemctl stop docker 
+    Back up all data in the directory /var/lib/docker/swarm 
+    Start the Docker service 
+
+To restore a previous backup 
+
+    Stop the docker service 
+    Delete any existing files or directories under /var/lib/docker/swarm 
+    Copy the backed-up files to /var/lib/docker/swarm 
+    Start the Docker service 
+
+
+## Namespaces and Cgroups 
+
+     Namespaces are Linux technology that allows processes to be isolated in terms of the resources that they see. 
+     They can be used to prevent different processes from interfering or interacting with one another. 
+     Docker uses namespaces to isolate containers. This technology allows containers to operate independently and securely. 
+
+     Docker uses namespaces such as the following ot isolate resources for containers:
+        pid: Process isolation 
+        net: Network interfaces 
+        ipc: Inter-process communication 
+        mnt: Filesystem mounts 
+        uts: Kernel and version identifiers 
+        user namespaces: Requries special configuration. Allows container processes to run as root inside the container while mapping that user to an unpriviledged user on the host. 
+
+    Control Groups (cgroups)
+        More about limiting resources - not what it can see but what it can use. 
+        Control groups allow Docker Engine to share resources to containers and optionally enforce limits and constraints. 
+
+    

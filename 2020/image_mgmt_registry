@@ -1,0 +1,81 @@
+
+## Docker Images 
+    
+    Docker image is a file containing the code and components needed to run software in a container. 
+    Containers are images use a layered file system. 
+    Each layer contains only the differences from the previous layer 
+    The image consists of one or more read-only layers, while the container adds one additional writable layer
+
+    Layered file system allows multiple images and containers to share the same layers. 
+        Smaller overall storage footprint 
+        Faster image transfer 
+        Faster image build 
+    
+    
+    Docker commands 
+        docker image pull IMAGE[:TAG] --> Download an image from a remote registry to the local machine
+        docker image history IMAGE --> List the layers used to build an image 
+    
+
+## Components of a Dockerfile 
+
+    Set of instructions which are used to construct a Docker image. 
+    These instructions are called directives 
+
+    FROM --> starts a new build and sets the base image. 
+    ENV --> Set environment variables. These can be referenced in the Dockerfile itself and are visible to the container at runtime
+    RUN --> Creates a new layer on top of the previous layer by running a command inside that new layer and committing the changes 
+    CMD --> Specify a default command used to run a container at execution time 
+
+    Building an Image 
+        docker build -t TAG . 
+    Run image 
+        docker run IMAGE 
+
+    EXPOSE --> Document which ports are intended to publish when running a container
+    WORKDIR --> Sets the current working directory for subsequent directives such as ADD, COPY, CMD, ENTRYPOINT
+    COPY --> Copy files from the local machine to the image 
+    ADD --> Similar to COPY but can also pull files using a URL and extract an archive into loose files in the image. 
+
+    STOPSIGNAL --> Specify the signal that will be used to stop the container. 
+    HEALTHCHECK --> Specify a command to run in order to perform a custom health check to verify that the container is working properly
+
+
+# Building Efficient Images
+
+    Important to create Docker images that are as efficient as possible 
+    This means that they are as small as possible and result in ephemeral containers
+    General --> Put things that are less likely to change on lower-level layers 
+    Dont create unnecessary layers 
+    Avoid including any unnecessary files, packages, etc. in the image. 
+
+
+# Multi-Stage Builds 
+    Docker supports the abilty to perform multi-stage builds. 
+    Multi-stage builds have more than one FROM directive in the Dockerfile, with each FROM directory starts a new stage
+    Each stage begins a completely new set of file system layers, allowing selective copy only the files need from previous layers
+
+
+# Managing Images 
+
+    Detailed information about an image 
+        docker image inspect IMAGE 
+
+    Get specific details 
+        docker image inspect ghost --format "{{.Architecture}} {{.Os}}"
+
+
+# Flatten Image to a single layer 
+
+    Sometimes images with fewer layers can perform better. 
+    Docker does not provide an official method but can be done doing the following
+        docker export 
+        docker import 
+
+# Docker Registries 
+
+    Docker Registry is responsible for storing and distributing Docker images. 
+    We have already pulled images from Docker Hub 
+    You can create your own trusted registry 
+    You can run a basic registry by using the registry image and publish port 5000 
+
