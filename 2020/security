@@ -1,0 +1,26 @@
+
+
+    => Signing Images and Enabling Docker Content Trust 
+        
+        Docker Content Trust provides a secure way to verify the integrity of images before you pull or run them on your systems
+        With DCT, the image creator signs each image with a certificate, which clients can use to verify the image before running it
+
+            docker trust key generate arashid290
+        
+        Generate a delegation key pair. This gives users access to sign images for a respository. 
+
+            docker trust signer add --key <key file> <signer name> <repo> 
+
+            docker trust sign <repo>:<tag> 
+
+    => Default Docker Engine Security 
+
+        Namespaces and Control Groups (cgroups) provide isolation to containers. 
+        Isolation means that container processes cannot see or affect other containers or processes running directly on the host system. 
+        This limits the impact of certain exploits or privilege escalation attacks. 
+        If one container is compromised, it is less likely that it can be used to gain any further access outside the container.
+
+        -> Docker daemon attack surface 
+            - docker daemon itself requires root 
+            - only allow trusted users to access the daemon 
+             
