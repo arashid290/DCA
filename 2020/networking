@@ -1,0 +1,107 @@
+
+## Docker Networking 
+
+        Docker uses an architecture called the 'Container Networking Model (CNM)' 
+        The CNM utilises the following concepts 
+            => Sandbox -> Isolated unit containing all networking components associated with a single container - usually linux network namespace
+            => Endpoint -> Connects a sandbox to a network. Each sandbox/container can have any number of endpoints, but has exactly one endpoint for each network it is connected to 
+            => Network -> A collection of endpoints connected to one another. 
+
+        CNM utilises the following concepts 
+            => Network Driver -> Handles the actual implementation of the CNM concepts 
+            => IPAM Driver -> IPAM means IP address management. Automatically allocates subnets and IP Addresses for networks and endpoints
+
+
+## Network Drivers 
+
+    Docker includes several built-in network drivers, known as Native Network Drivers 
+    --> Host 
+        -> allows containers to use host's network stack directly 
+        -> Containers use the host's networking resources directly 
+        -> No sandboxes, all containers on the host using the host driver share the same network namespace 
+        -> No two containers can use the same port(s) 
+        -> Simple and easy setup, one or only a few containers on a single host 
+    
+    docker run -d --net host --name host_busybox radial/busyboxplus:curl sleep 3600
+    docker run -d --net host --name host_nginx nginx
+    docker exec host_busybox curl localhost:80
+
+
+    --> Bridge 
+        -> Uses Linux bridge networks to provide connectivity between containers on the same host. 
+        -> This is the default driver for containers running on a single host 
+        -> Creates a Linux Bridge for each Docker network 
+        -> Creates a default Linux bridge network called bridge0. Containers automatically connect to this if no other network is specified. 
+        -> Use Cases: Isolated networking amongst containers on a single host. 
+
+        docker network create --driver bridge adnan-bridge
+        docker network list 
+
+        docker run -d --name bridge_nginx --network adnan-bridge nginx
+        docker run --rm --name bridge_busybox --network adnan-bridge radial/busyboxplus:curl curl bridge_nginx:80
+
+
+    --> Overlay
+        -> The Overlay Network driver provides connectivity between containers across multiple docker hosts 
+        -> Uses a VXLAN data plane, which allows the underlying network infrastructure (underlay) to route data between hosts in a way that is transparent to the containers themselves. 
+        -> Automatically configures network interfaces, bridges, etc. on each host as needed. 
+        -> Use Case: Networkin between containers in a swarm 
+
+    docker network create --driver overlay adnan-overlay
+
+    --> MACVLAN
+        -> The MACVLAN Network Driver offers a more lightweight implemenation by connecting container interfaces directly to host interfaces 
+        -> Uses direct association with Linux interfaces instead of a bridge interface 
+        -> Harder to configure between MACVLAN and the external network
+        -> More lightweight and less latency 
+        -> Use Cases: When there is need for extremely low latency, or a need for containers with IP addresses in the external subnet
+
+    --> None 
+        -> The None network driver does not provide any networking implemenation 
+        -> Container is completely isolated from other containers and the host 
+        -> If you want networking with the None driver, you must set everything up manually 
+        -> None does create a seperate networking namespace for each container, but no interfaces or endpoint 
+        -> Use cases: When there is no need for container networking - or setup yourself 
+    
+
+
+## Creating a Docker Bridge Network 
+
+    --> You can create and manage your own networks with the docker network command 
+
+    docker network create NETWORK => Create a network 
+    docker run --network NETWORK => Run a new container, connecting it to the specified network 
+    docker network connect NETWORK CONTAINER => Connect a running container to an existing network 
+
+
+    --> Embedded DNS 
+        -> Docker networks implement an embedded DNS server, allowing containers and services to locate and communicate with one another. 
+        -> Containers can communicate with other containers and services using the service or container name or network alias 
+
+    
+    --> Network Troubleshooting 
+
+        -> docker logs CONTAINER 
+        -> docker service logs SERVICE 
+        -> journalctl -u docker 
+
+    A great way to troubleshoot network issues is to run a container within the context of a Docker network. 
+    You can use it to test connectivity and gather information 
+
+        -> Netshoot 
+        -> Docker pull nicolaka/netshoot 
+
+    You could spin up netshoot on the same network as the container that is having issues. 
+
+
+    --> External DNS 
+        
+        You may need to customise the external DNS server(s) used by your containers. 
+        You can change the default for the host with the dns setting in daemon.json (/etc/docker/daemon.json)
+
+        {
+            "dns": [8.8.8.8]
+        }
+
+        systemctl restart docker 
+        
